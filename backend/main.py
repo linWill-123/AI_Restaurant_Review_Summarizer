@@ -2,6 +2,9 @@ from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from search_places import search_places
 from fetch_reviews import fetch_reviews
+from embeddings import embed_texts
+from faiss_index import FaissIndex
+from pydantic import BaseModel
 
 app = FastAPI()
 
@@ -14,6 +17,12 @@ app.add_middleware(
     allow_headers=["*"],  # Allow all headers
 )
 
+faiss_idx = FaissIndex(dim=384, use_gpu=False)
+
+class IndexRequest(BaseModel):
+     place_id: str
+     snippets: list[str]
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
@@ -25,3 +34,11 @@ def get_places(query: str = Query(...), location: str = None, radius: int = None
 @app.get("/reviews/{place_id}")
 def get_reviews(place_id: str):
     return fetch_reviews(place_id)
+
+@app.post("/index_reviews/")
+def index_reviews(req: IndexRequest):
+    # Convert texts to embeddings
+    embs = embed_texts(req.snippets)
+    # Add embeddings to the index
+    faiss_idx.add_embeddings(embs)
+    return {"indexed_count": len(embs)}

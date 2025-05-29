@@ -4,47 +4,80 @@ import { cleanReviews } from "../../utils/cleanReviews";
 
 export function ReviewManager({ placeId }: { placeId: string }) {
   const [snippets, setSnippets] = useState<string[]>([]);
-  const [confirmed, setConfirmed] = useState(false);
+  const [indexedCount, setIndexedCount] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  /**
-   * Fetches raw reviews for the given placeId from the API, cleans the reviews
-   * by removing HTML/emojis and chunking them into segments, and updates the
-   * snippets state with the cleaned review snippets.
-   */
-
+  /** Fetch raw reviews, clean & chunk them, store in snippets state */
   const loadReviews = async () => {
-    const raw = await fetch(
-      `${import.meta.env.VITE_API_URL}/reviews/${placeId}`
-    ).then((r) => r.json());
-    setSnippets(cleanReviews(raw));
+    setLoading(true);
+    try {
+      const raw = await fetch(
+        `${import.meta.env.VITE_API_URL}/reviews/${placeId}`
+      ).then((r) => r.json());
+      console.log("Raw reviews:", raw);
+      setSnippets(cleanReviews(raw));
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const confirmAndIndex = () => {
-    // e.g. call your backend to embed & upsert these snippets
-    fetch("/api/indexSnippets", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ placeId, snippets }),
-    }).then(() => setConfirmed(true));
+  /** Send cleaned snippets to backend for embedding & indexing */
+  const confirmAndIndex = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/index_reviews/`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ place_id: placeId, snippets }),
+        }
+      );
+      if (!res.ok) throw new Error(`Error ${res.status}`);
+      const data = await res.json();
+      setIndexedCount(data.indexed_count);
+    } catch (err) {
+      console.error("Indexing failed", err);
+      alert("Failed to index snippets. Check console for details.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div>
-      <button onClick={loadReviews}>Load Reviews</button>
+    <div className="space-y-4">
+      <button
+        onClick={loadReviews}
+        disabled={loading}
+        className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+      >
+        {loading ? "Loading…" : "Load Reviews"}
+      </button>
 
-      {snippets.length > 0 && !confirmed && (
+      {snippets.length > 0 && (
         <>
           <p>Preview snippets (first 100 chars):</p>
-          <ul>
+          <ul className="list-disc pl-5 space-y-1 max-h-48 overflow-auto">
             {snippets.map((s, i) => (
               <li key={i}>{s.slice(0, 100)}…</li>
             ))}
           </ul>
-          <button onClick={confirmAndIndex}>Confirm & Index</button>
+          <button
+            onClick={confirmAndIndex}
+            disabled={loading}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            {loading ? "Indexing…" : "Confirm & Index"}
+          </button>
         </>
       )}
 
-      {confirmed && <p>✅ Snippets confirmed and sent to be indexed.</p>}
+      {indexedCount !== null && (
+        <p className="text-green-700">
+          ✅ Successfully indexed {indexedCount} snippet
+          {indexedCount > 1 ? "s" : ""}.
+        </p>
+      )}
     </div>
   );
 }

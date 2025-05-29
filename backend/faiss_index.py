@@ -16,7 +16,7 @@ class FaissIndex:
         arr = np.array(embeddings, dtype='float32')
         self.index.add(arr)
 
-    def search(self, query_emb: list[float], k: int = 5):
+    def search(self, query_emb: list[float], k: int = 2):
         arr = np.array([query_emb], dtype='float32')
         distances, indices = self.index.search(arr, k)
         return distances[0].tolist(), indices[0].tolist()
