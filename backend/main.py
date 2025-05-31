@@ -5,6 +5,7 @@ from fetch_reviews import fetch_reviews
 from retrieve_snippets import retrieve_snippets
 from embeddings import embed_texts
 from pydantic import BaseModel
+from prompts import user_template
 
 from shared import faiss_idx, all_snippets
 from llm_chain import summarization_chain
@@ -64,12 +65,14 @@ async def summarize(req: SummarizeRequest):
     3) Invoke the LLM chain to produce a three-sentence summary.
     """
     # a) Retrieve relevant snippets
-    snippets = retrieve_snippets(req.attribute, k=req.k)
+    snippets = retrieve_snippets(req.attribute)
 
     # b) Format snippets into a single string for the prompt
     #    e.g. "- snippet one\n- snippet two\n- snippet three"
     context = "\n".join(f"- {s}" for s in snippets)
 
+    formatted_prompt = user_template.format(snippets=context, attribute=req.attribute)
+    
     # c) Run the LLMChain
     summary_text = summarization_chain.run(
         attribute=req.attribute,

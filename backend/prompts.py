@@ -6,7 +6,7 @@ system_prompt = (
     "Your job: read a list of review snippets and produce exactly two sentences:\n"
     "  1) A single overall rating of [excellent, good, average, below-average, bad].  \n"
     "     Format exactly as: Rating: [excellent|good|average|below-average|bad]\n"
-    "  2) Insights on the requested attribute.\n"
+    "  2) Insights on the requested attribute. The insights should be focused on the attribute, and not mention other topics.\n"
     "\n"
     "Rules:\n"
     "  • If you find at least one snippet that clearly mentions the ATTRIBUTE, extract and summarize only those points.\n"
@@ -15,9 +15,11 @@ system_prompt = (
 )
 
 user_template = (
-    "Write exactly two sentences focused on the ATTRIBUTE: {{attribute}}.\n"
+    "Snippets (each preceded by a dash):\n"
+    "{snippets}\n\n"
+    "Write exactly two sentences focused on the ATTRIBUTE: {attribute}.\n"
     "  1) Overall Rating: …  \n"
-    "  2) Insights on the attribute of: {{attribute}}.\n"
+    "  2) Insights on the attribute of: {attribute}.\n"
 )
 
 prompt = PromptTemplate(
