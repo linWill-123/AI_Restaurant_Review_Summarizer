@@ -17,7 +17,11 @@ app.add_middleware(
     allow_headers=["*"],  # Allow all headers
 )
 
+# Initialize the Faiss index with the embedding dimension, used and shared across endpoints
 faiss_idx = FaissIndex(dim=384, use_gpu=False)
+
+# Store all snippets in memory for indexing
+all_snippets: list[str] = []
 
 class IndexRequest(BaseModel):
      place_id: str
@@ -41,4 +45,6 @@ def index_reviews(req: IndexRequest):
     embs = embed_texts(req.snippets)
     # Add embeddings to the index
     faiss_idx.add_embeddings(embs)
+    # store raw snippets for later retrieval mapping
+    all_snippets.extend(req.snippets)
     return {"indexed_count": len(embs)}
