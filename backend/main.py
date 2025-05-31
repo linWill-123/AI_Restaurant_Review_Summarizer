@@ -41,6 +41,11 @@ def get_reviews(place_id: str):
 
 @app.post("/index_reviews/")
 def index_reviews(req: IndexRequest):
+    # First reset the FAISS index and clear out any existing snippets
+    global faiss_idx, all_snippets
+    faiss_idx.reset()
+    all_snippets.clear()
+
     # Convert texts to embeddings
     embs = embed_texts(req.snippets)
     # Add embeddings to the index

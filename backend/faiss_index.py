@@ -12,6 +12,9 @@ class FaissIndex:
         res = faiss.StandardGpuResources()
         return faiss.index_cpu_to_gpu(res, 0, cpu_index)
 
+    def reset(self):
+        self.index.reset()
+
     def add_embeddings(self, embeddings: list[list[float]]):
         arr = np.array(embeddings, dtype='float32')
         self.index.add(arr)
