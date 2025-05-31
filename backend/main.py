@@ -2,14 +2,13 @@ from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from search_places import search_places
 from fetch_reviews import fetch_reviews
+from retrieve_snippets import retrieve_snippets
 from embeddings import embed_texts
-from faiss_index import FaissIndex
 from pydantic import BaseModel
 
-from langchain import LLMChain
-from langchain.llms import OpenAI
+from shared import faiss_idx, all_snippets
+from llm_chain import summarization_chain
 
-from prompts import prompt as summarization_prompt
 
 app = FastAPI()
 
@@ -22,21 +21,7 @@ app.add_middleware(
     allow_headers=["*"],  # Allow all headers
 )
 
-# Initialize the Faiss index with the embedding dimension, used and shared across endpoints
-faiss_idx = FaissIndex(dim=384, use_gpu=False)
-
-# Store all snippets in memory for indexing
-all_snippets: list[str] = []
-
-# Intialize the LLMChain 
-llm = OpenAI(model_name="gpt-3.5-turbo", temperature=0.0)
-prompt = PromptTemplate(
-    input_variables=["attribute", "snippets"],
-    template=system_prompt + "\n\n" + user_template
-)
-summarization_chain = LLMChain(llm=llm, prompt=summarization_prompt)
-
-class SummarizeRequests(BaseModel):
+class SummarizeRequest(BaseModel):
     attribute: str 
     k: int = 3 
 
