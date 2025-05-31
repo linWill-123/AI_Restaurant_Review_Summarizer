@@ -17,6 +17,7 @@ export function ReviewManager({ placeId }: { placeId: string }) {
   // New state for feature selection & summary
   const [featureOption, setFeatureOption] =
     useState<FeatureOption>("food quality");
+
   const [customFeature, setCustomFeature] = useState("");
   const [summary, setSummary] = useState<string | null>(null);
   const [summarizing, setSummarizing] = useState(false);
@@ -28,7 +29,6 @@ export function ReviewManager({ placeId }: { placeId: string }) {
       const raw = await fetch(
         `${import.meta.env.VITE_API_URL}/reviews/${placeId}`
       ).then((r) => r.json());
-      console.log("Raw reviews:", raw);
       setSnippets(cleanReviews(raw));
     } finally {
       setLoading(false);
@@ -185,7 +185,11 @@ export function ReviewManager({ placeId }: { placeId: string }) {
       {summary && (
         <div className="mt-4 p-4 bg-gray-50 border rounded">
           <h3 className="text-lg font-semibold mb-2">Summary:</h3>
-          <p>{summary}</p>
+          <ul className="list-disc pl-5 space-y-1">
+            {summary.split("\n").map((sentence, index) => (
+              <li key={index}>{sentence.trim()}.</li>
+            ))}
+          </ul>
         </div>
       )}
     </div>

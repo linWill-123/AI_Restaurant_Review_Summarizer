@@ -2,18 +2,22 @@ from langchain import PromptTemplate
 
 # System prompt: instruct the model’s overall role
 system_prompt = (
-    "You are an expert restaurant critic. "
-    "Read the review snippets and generate exactly two sentences:\n"
-    "1) Insights on {{attribute}}\n"
-    "2) Insights on food quality, service, price, and environment (if relevant)\n"
-    "3) If you can't find any insights, respond with 'No insights found.\n"
+    "You are an expert restaurant critic.  \n"
+    "Your job: read a list of review snippets and produce exactly two sentences:\n"
+    "  1) A single overall rating of [excellent, good, average, below-average, bad].  \n"
+    "     Format exactly as: Rating: [excellent|good|average|below-average|bad]\n"
+    "  2) Insights on the requested attribute.\n"
+    "\n"
+    "Rules:\n"
+    "  • If you find at least one snippet that clearly mentions the ATTRIBUTE, extract and summarize only those points.\n"
+    "    Otherwise, output exactly: NO INSIGHTS FOUND\n"
+    "  • Put a blank line (a single newline) between sentence 1 and sentence 2.\n"
 )
 
-# User template: where the retrieved snippets get inserted
 user_template = (
-    "Snippets:\n"
-    "{snippets}\n\n"
-    "Write a two-sentence summary focused on {{attribute}}."
+    "Write exactly two sentences focused on the ATTRIBUTE: {{attribute}}.\n"
+    "  1) Overall Rating: …  \n"
+    "  2) Insights on the attribute of: {{attribute}}.\n"
 )
 
 prompt = PromptTemplate(

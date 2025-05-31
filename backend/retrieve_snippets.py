@@ -1,7 +1,7 @@
 from embeddings import embed_texts
 from shared import faiss_idx, all_snippets
 
-def retrieve_snippets(query: str, k: int = 5) -> list[str]:
+def retrieve_snippets(query: str, k: int = 3) -> list[str]:
     """
     Given a text query, embed it and return the top-k raw review snippets.
     """
