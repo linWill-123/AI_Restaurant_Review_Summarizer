@@ -20,3 +20,7 @@ llm = ChatOpenAI(
 
 # Initialize the LLMChain
 summarization_chain = LLMChain(llm=llm, prompt=summarization_prompt)
+
+# TODO: Comment out the code below to replace with LocalLLM if needed, and comment out the above LLMChain initialization
+# local_llm = LocalLLM(model_path="./models/llama2-7b-8bit")
+# summarization_chain = LLMChain(llm=local_llm, prompt=summarization_prompt)
