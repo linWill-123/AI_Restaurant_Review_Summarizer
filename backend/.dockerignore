@@ -1,0 +1,19 @@
+# Python virtual environments
+
+venv/
+
+# Large model files
+
+models/
+
+# Python cache files
+
+**pycache**/
+_.pyc
+_.pyo
+_.pyd
+.Python
+_.so
+
+.git
+.gitignore
