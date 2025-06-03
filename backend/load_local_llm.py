@@ -18,12 +18,13 @@ login(huggingface_token)
 tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-chat-hf")
 
 # 2) Load model in 8-bit
+# Note: Uncomment `load_in_8bit=True` if you want to quantize the model to 8-bit.
 model = AutoModelForCausalLM.from_pretrained(
     "meta-llama/Llama-2-7b-chat-hf",
-    load_in_8bit=True,
+    # load_in_8bit=True,
     device_map="auto"
 )
 
 # 3) (Optional) Save quantized model for faster reload
-model.save_pretrained("./models/llama2-7b-8bit")
-tokenizer.save_pretrained("./models/llama2-7b-8bit")
+model.save_pretrained("./models/llama2-7b")
+tokenizer.save_pretrained("./models/llama2-7b")
