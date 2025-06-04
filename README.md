@@ -80,12 +80,15 @@ docker build -t ecom-review-backend:latest .
 ```
 
 Then
+
+```bash
 docker run -d \
  --name review-api \
  -p 8000:8000 \
  -e GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY} \
   -e OPENAI_API_KEY=${OPENAI_API_KEY} \
  ecom-review-backend:latest
+```
 
 ## On-premise LLM option
 
